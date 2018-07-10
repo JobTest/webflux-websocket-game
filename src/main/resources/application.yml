@@ -1,0 +1,23 @@
+spring:
+    application:
+        name: webflux-websocket-game
+
+server:
+  port: 8080
+  address: localhost
+
+game:
+  ws-host: game-round
+  cron:
+    start-round: "9,19,29,39,49,59 * * * * *"
+    stop-round: "5,15,25,35,45,55 * * * * *"
+
+logging:
+  file: logs/webflux-websocket-game.log
+
+info:
+    build:
+        artifact: webflux-websocket-game
+        name: WebfluxWebsocketGame
+        description: Api for webflux-websocket-game app
+        version: 0.0.1

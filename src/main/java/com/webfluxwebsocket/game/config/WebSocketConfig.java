@@ -30,7 +30,7 @@ public class WebSocketConfig {
     @Autowired
     private PlayerMapper playerMapper;
 
-    @Value("/${game.ws-host}/")
+    @Value("/${game.ws-host}")
     private String webSocketHostName;
 
     @Bean
@@ -40,17 +40,18 @@ public class WebSocketConfig {
         Map<String, WebSocketHandler> socketHandlers = new HashMap<>();
 
         for (Player player : players) {
-            socketHandlers.put(webSocketHostName + player.getId(),
+            String urlSocketChanel = webSocketHostName + "/" + player.getId();
+            socketHandlers.put(urlSocketChanel,
                     socketSession -> socketSession.send(Flux.<String>generate(sink -> {
                         switch (player.getState()) {
-                            case START_ROUND:
-                                sink.complete();
-                                break;
                             case PLAY:
                                 sink.next(playerMapper.toJson(player));
                                 break;
                             case STOP_ROUND:
                                 sink.next(playerMapper.toJson(player));
+                                break;
+                            case START_ROUND:
+                                sink.complete();
                                 break;
                         } }).map( socketSession::textMessage )
                             .delayElements(Duration.ofSeconds(1))));

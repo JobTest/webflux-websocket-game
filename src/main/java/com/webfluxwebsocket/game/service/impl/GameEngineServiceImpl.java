@@ -33,7 +33,7 @@ public class GameEngineServiceImpl implements GameEngineService {
 
     private static Integer generatedNumber;
 
-    @Value("ws://${server.address}:${server.port}/${game.ws-host}/")
+    @Value("ws://${server.address}:${server.port}/${game.ws-host}")
     private String webSocketHostName;
 
     private final PlayerRepository playerRepository;
@@ -86,8 +86,9 @@ public class GameEngineServiceImpl implements GameEngineService {
 
         EmitterProcessor<String> emitter = EmitterProcessor.create();
         WebSocketClient socketClient = new ReactorNettyWebSocketClient();
+        String urlSocketChanel = webSocketHostName + "/" + playerId;
 
-        Mono<Void> mono = socketClient.execute(new URI(webSocketHostName + playerId),
+        Mono<Void> mono = socketClient.execute(new URI(urlSocketChanel),
                 socketSession -> socketSession.receive()
                         .map(WebSocketMessage::getPayloadAsText)
                         .subscribeWith(emitter)

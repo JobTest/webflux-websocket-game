@@ -1,6 +1,6 @@
 package com.webfluxwebsocket.game.service.impl;
 
-import com.webfluxwebsocket.game.repository.PlayerReactiveRepository;
+import com.webfluxwebsocket.game.repository.PlayerRepository;
 import com.webfluxwebsocket.game.domain.Player;
 import com.webfluxwebsocket.game.domain.enumeration.PlayerState;
 import com.webfluxwebsocket.game.service.GameEngineService;
@@ -39,7 +39,7 @@ public class GameEngineServiceImpl implements GameEngineService {
     private String webSocketHostName;
 
     @Autowired
-    private PlayerReactiveRepository playerReactiveRepository;
+    private PlayerRepository playerRepository;
 
     @Override
     public Integer getGeneratedNumber() {
@@ -60,28 +60,28 @@ public class GameEngineServiceImpl implements GameEngineService {
 
     @Override
     public Flux<Player> findAll() {
-        return playerReactiveRepository.findAll();
+        return playerRepository.findAll();
     }
 
     @Override
     public Flux<Player> findByStates(PlayerState... states) {
-        return playerReactiveRepository.findAll()
+        return playerRepository.findAll()
                 .filter(gamePlayer -> Arrays.asList(states).contains(gamePlayer.getState()));
     }
 
     @Override
     public Mono<Player> findById(String playerId) {
-        return playerReactiveRepository.findById(playerId);
+        return playerRepository.findById(playerId);
     }
 
     @Override
     public Mono<Player> save(Player player) {
-        return playerReactiveRepository.save(player);
+        return playerRepository.save(player);
     }
 
     @Override
     public Flux<String> getConnectToGameRound(String playerId, Player player) throws URISyntaxException, IllegalAccessException {
-        Player monoPlayer = playerReactiveRepository.findById(playerId).block();
+        Player monoPlayer = playerRepository.findById(playerId).block();
         boolean isPlayerStatus = isPlayerStatus(monoPlayer);
         if (isPlayerStatus) {
             save(player).subscribe();
@@ -107,11 +107,11 @@ public class GameEngineServiceImpl implements GameEngineService {
 
         logger.debug("Stop the Round with the Random of Number = {}", generatedNumber);
 
-        playerReactiveRepository.findAll( Example.of(new Player(null, null, null, PlayerState.PLAY)) )
+        playerRepository.findAll( Example.of(new Player(null, null, null, PlayerState.PLAY)) )
                 .flatMap(player -> {
                     player.setWin(checkWinning(player.getNumber()));
                     player.setState(PlayerState.STOP_ROUND);
-                    return playerReactiveRepository.save(player); })
+                    return playerRepository.save(player); })
                 .subscribe();
     }
 
@@ -119,12 +119,12 @@ public class GameEngineServiceImpl implements GameEngineService {
     public void startRound() {
         logger.debug("Get Start new Round");
 
-        playerReactiveRepository.findAll( Example.of(new Player(null, null, null, PlayerState.STOP_ROUND)) )
+        playerRepository.findAll( Example.of(new Player(null, null, null, PlayerState.STOP_ROUND)) )
                 .flatMap(player -> {
                     player.setWin(null);
                     player.setNumber(null);
                     player.setState(PlayerState.START_ROUND);
-                    return playerReactiveRepository.save(player); })
+                    return playerRepository.save(player); })
                 .subscribe();
     }
 

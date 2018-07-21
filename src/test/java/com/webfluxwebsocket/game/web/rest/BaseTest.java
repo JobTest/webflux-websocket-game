@@ -1,7 +1,9 @@
 package com.webfluxwebsocket.game.web.rest;
 
+import com.webfluxwebsocket.game.config.ReactiveMongoConfig;
 import com.webfluxwebsocket.game.config.WebSocketConfig;
 import com.webfluxwebsocket.game.domain.Player;
+import com.webfluxwebsocket.game.repository.PlayerReactiveRepository;
 import com.webfluxwebsocket.game.service.GameEngineService;
 import com.webfluxwebsocket.game.service.mapper.PlayerMapper;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,9 +19,8 @@ import java.util.List;
 @ExtendWith(SpringExtension.class)
 @WebFluxTest({
         GameEngineResource.class,
-        WebSocketConfig.class,
-        PlayerMapper.class,
-        GameEngineService.class
+        WebSocketConfig.class, PlayerMapper.class, GameEngineService.class,
+//        ReactiveMongoConfig.class, PlayerReactiveRepository.class
 })
 @ActiveProfiles("test")
 public abstract class BaseTest {

@@ -53,7 +53,7 @@ public class WebSocketConfig {
                         socketHandlers.put(urlSocketChanel,
                                 socketSession -> socketSession.send( Flux.<String>generate(sink -> {
                                             Player monoPlayer = gameEngineService.findById(player.getId())
-                                                    .block(); //todo
+                                                    .block();
 
                                             switch (monoPlayer.getState()) {
                                                 case PLAY:
@@ -68,8 +68,8 @@ public class WebSocketConfig {
                                         .map( socketSession::textMessage )
                                         .delayElements(Duration.ofSeconds(1))));
                         return player; })
-                .then() //.collectList()
-                .block();
+                .then()   //todo .then() <<< Void  |  .collectList() <<< List
+                .block(); //todo .block() <<< Mono
 
         SimpleUrlHandlerMapping urlHandlerMapping = new SimpleUrlHandlerMapping();
         urlHandlerMapping.setUrlMap(socketHandlers);

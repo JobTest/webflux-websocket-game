@@ -84,7 +84,7 @@ public class GameEngineServiceImpl implements GameEngineService {
         Player monoPlayer = playerReactiveRepository.findById(playerId).block();
         boolean isPlayerStatus = isPlayerStatus(monoPlayer);
         if (isPlayerStatus) {
-            save(player).block();
+            save(player).subscribe();
         } else {
             throw new IllegalAccessException("This time a server is busy to process Your request");
         }

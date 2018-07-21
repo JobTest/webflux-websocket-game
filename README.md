@@ -2,6 +2,8 @@
 Игра - угадай цифру
 -------------------
 
+* [youtube.com/watch?v=VBrZ_nyjBaQ](https://www.youtube.com/watch?v=VBrZ_nyjBaQ&feature=youtu.be&t=29605)
+
 Сервер генерирует число от 1 до 10, и ждет варианты в течении 10 секунд.
 Тому кто угадал сервер шлет ответ “You win”, тому кто проиграл “You lose”
 

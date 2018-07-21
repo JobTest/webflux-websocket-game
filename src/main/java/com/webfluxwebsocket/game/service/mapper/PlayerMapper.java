@@ -1,6 +1,6 @@
 package com.webfluxwebsocket.game.service.mapper;
 
-import com.webfluxwebsocket.game.model.Player;
+import com.webfluxwebsocket.game.domain.Player;
 
 public interface PlayerMapper {
 

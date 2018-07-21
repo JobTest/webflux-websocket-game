@@ -1,7 +1,7 @@
 package com.webfluxwebsocket.game.config;
 
-import com.webfluxwebsocket.game.model.Player;
-import com.webfluxwebsocket.game.model.enumeration.PlayerState;
+import com.webfluxwebsocket.game.domain.Player;
+import com.webfluxwebsocket.game.domain.enumeration.PlayerState;
 import com.webfluxwebsocket.game.service.GameEngineService;
 import com.webfluxwebsocket.game.service.mapper.PlayerMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,6 @@ import reactor.core.publisher.Flux;
 
 import java.time.Duration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Configuration
@@ -33,29 +32,44 @@ public class WebSocketConfig {
     @Value("/${game.ws-host}")
     private String webSocketHostName;
 
+    /**
+     * Список объектов - это тоже самое что просто обект.
+     * В Java, если это объект тогда мы получаем только ссылку на этот объект (то есть, объект является единственной и общей точкое для всех...):
+     * - это значит если объект был изменен в теле одной функции, то изменения этого объекта будут видны по ссылке и в теле других функций БЕЗ ПЕРЕЗАГРУЗКИ ДАННЫХ.
+     *
+     * А если данные хранятся в базе данных (на удаленном сервере) в этом случае :
+     * - если объект в базе данных был изменен в теле одной функции, то изменения этого объекта УЖЕ НЕ БУДУТ ВИДНЫ в теле других функций БЕЗ ПЕРЕЗАГРУЗКИ ДАННЫХ.
+     * И поэтому здесь нужно перезагрузить данные...
+     */
     @Bean
     @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.TARGET_CLASS)
     public HandlerMapping getUrlHandlerMapping() {
-        List<Player>                 players = gameEngineService.findByStates(PlayerState.START_ROUND, PlayerState.PLAY, PlayerState.STOP_ROUND);
         Map<String, WebSocketHandler> socketHandlers = new HashMap<>();
 
-        for (Player player : players) {
-            String urlSocketChanel = webSocketHostName + "/" + player.getId();
-            socketHandlers.put(urlSocketChanel,
-                    socketSession -> socketSession.send(Flux.<String>generate(sink -> {
-                        switch (player.getState()) {
-                            case PLAY:
-                                sink.next(playerMapper.toJson(player));
-                                break;
-                            case STOP_ROUND:
-                                sink.next(playerMapper.toJson(player));
-                                break;
-                            case START_ROUND:
-                                sink.complete();
-                                break;
-                        } }).map( socketSession::textMessage )
-                            .delayElements(Duration.ofSeconds(1))));
-        }
+        gameEngineService.findByStates(PlayerState.START_ROUND, PlayerState.PLAY, PlayerState.STOP_ROUND)
+                .map(player -> {
+                        String urlSocketChanel = webSocketHostName + "/" + player.getId();
+
+                        socketHandlers.put(urlSocketChanel,
+                                socketSession -> socketSession.send( Flux.<String>generate(sink -> {
+                                            Player monoPlayer = gameEngineService.findById(player.getId())
+                                                    .block(); //todo
+
+                                            switch (monoPlayer.getState()) {
+                                                case PLAY:
+                                                    sink.next(playerMapper.toJson(monoPlayer));
+                                                    break;
+                                                case STOP_ROUND:
+                                                    sink.next(playerMapper.toJson(monoPlayer));
+                                                    break;
+                                                case START_ROUND:
+                                                    sink.complete();
+                                                    break; } })
+                                        .map( socketSession::textMessage )
+                                        .delayElements(Duration.ofSeconds(1))));
+                        return player; })
+                .then() //.collectList()
+                .block();
 
         SimpleUrlHandlerMapping urlHandlerMapping = new SimpleUrlHandlerMapping();
         urlHandlerMapping.setUrlMap(socketHandlers);

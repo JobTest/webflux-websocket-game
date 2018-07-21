@@ -42,6 +42,7 @@ repositories {
 
 
 dependencies {
+    compile('org.springframework.boot:spring-boot-starter-data-mongodb-reactive')
     compile('org.springframework.boot:spring-boot-starter-webflux')
 
     compile('com.google.code.gson:gson:2.3.1')

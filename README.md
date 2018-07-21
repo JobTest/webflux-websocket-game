@@ -30,6 +30,35 @@ Gradle
 
 ############################################################
 
+![s7Oelm](tutorial/s7Oelm.jpg)
+
+* [Mongo Plugin](https://plugins.jetbrains.com/plugin/7141-mongo-plugin)
+  ![Mongo Plugin](https://plugins.jetbrains.com/files/7141/screenshot_16492.png)
+
+`spring.data.mongodb.host` and `spring.data.mongodb.port` are not supported if you’re using the **Mongo 3.0 Java driver**.
+In such cases, spring.data.mongodb.uri should be used to provide all of the configuration, like this:
+```properties
+spring:
+    data:
+        mongodb:
+#            uri: mongodb://admin:1978@localhost:27017/test?authSource=test&authMechanism=SCRAM-SHA-1
+            uri: mongodb://admin:1978@localhost:27017/test?authMechanism=SCRAM-SHA-1
+```
+
+* [Support for Query-by-Example](https://github.com/spring-projects/spring-data-examples/tree/master/jpa/query-by-example)
+* [Reactive Spring Data MongoDB](http://javasampleapproach.com/reactive-programming/angular-4-spring-webflux-spring-data-reactive-mongodb-example-full-reactive-angular-4-http-client-spring-boot-restapi-server)
+  ![angular-4-spring-webflux-reactive-mongodb-architecture](tutorial/angular-4-spring-webflux-reactive-mongodb-architecture.png)
+* [a-quick-look-into-reactive-streams-with-spring-data-and-mongodb](https://lankydanblog.com/2017/07/16/a-quick-look-into-reactive-streams-with-spring-data-and-mongodb)
+  [spring-data-reactive-mongodb](https://github.com/lankydan/spring-data-reactive-mongodb)
+  [spring-data-mongodb-with-reactive-mongodb](https://dzone.com/articles/spring-data-mongodb-with-reactive-mongodb)
+  [Reactive Streams With Spring Data and MongoDB](https://dzone.com/articles/reactive-streams-with-spring-data-and-mongodb)
+  [Spring Data MongoDB Example](https://www.journaldev.com/4144/spring-data-mongodb-example)
+* [Ошибки, связанные с откатом транзакций](https://www.ibm.com/developerworks/ru/library/j-ts1/index.html)
+
+[Why do I get Gson builder error when starting a Spring Boot application?](https://stackoverflow.com/questions/50031381/why-do-i-get-gson-builder-error-when-starting-a-spring-boot-application)
+
+############################################################
+
 Цели:
 ---
 * Проблема №1 - между каждым игроком и сервером создать отдельный канал `queue` веб-сокета

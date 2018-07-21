@@ -1,6 +1,6 @@
 package com.webfluxwebsocket.game.service.mapper.impl;
 
-import com.webfluxwebsocket.game.model.Player;
+import com.webfluxwebsocket.game.domain.Player;
 import com.webfluxwebsocket.game.service.mapper.PlayerMapper;
 import com.google.gson.Gson;
 import org.springframework.stereotype.Component;

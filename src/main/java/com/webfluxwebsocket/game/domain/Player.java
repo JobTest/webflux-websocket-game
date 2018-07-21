@@ -1,13 +1,17 @@
-package com.webfluxwebsocket.game.model;
+package com.webfluxwebsocket.game.domain;
 
-import com.webfluxwebsocket.game.model.enumeration.PlayerState;
+import com.webfluxwebsocket.game.domain.enumeration.PlayerState;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.util.Objects;
 
 /**
  * A Player.
  */
+@Document(collection = "players")
 public class Player {
-
+    @Id
     private String id;
     private String win;
     private Integer number;

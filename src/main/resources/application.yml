@@ -1,9 +1,13 @@
 spring:
     application:
         name: webflux-websocket-game
+    data:
+        mongodb:
+#            uri: mongodb://admin:1978@localhost:27017/test?authSource=test&authMechanism=SCRAM-SHA-1
+            uri: mongodb://admin:1978@localhost:27017/test?authMechanism=SCRAM-SHA-1
 
 server:
-  port: 8080
+  port: 8081
   address: localhost
 
 game:

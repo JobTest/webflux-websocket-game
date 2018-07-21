@@ -1,7 +1,7 @@
 package com.webfluxwebsocket.game.web.rest;
 
-import com.webfluxwebsocket.game.model.Player;
-import com.webfluxwebsocket.game.model.enumeration.PlayerState;
+import com.webfluxwebsocket.game.domain.Player;
+import com.webfluxwebsocket.game.domain.enumeration.PlayerState;
 import com.webfluxwebsocket.game.service.GameEngineService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
@@ -203,7 +203,9 @@ public class WebFluxWebSocketPlayerStateIntegrationTest extends BaseTest {
                 int playingPlayers = 0;
                 int winPlayers = 0;
                 int leftPlayers = 0;
-                List<Player> players = gameEngineService.findAll();
+                List<Player> players = gameEngineService.findAll()
+                        .collectList()
+                        .block();
 
                 monitorAllPlayers = monitorAllPlayers < players.size() ? players.size() : monitorAllPlayers;
                 for (Player player: players) {

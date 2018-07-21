@@ -1,11 +1,11 @@
 package com.webfluxwebsocket.game.service;
 
-import com.webfluxwebsocket.game.model.Player;
-import com.webfluxwebsocket.game.model.enumeration.PlayerState;
+import com.webfluxwebsocket.game.domain.Player;
+import com.webfluxwebsocket.game.domain.enumeration.PlayerState;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.net.URISyntaxException;
-import java.util.List;
 
 /**
  * Service Interface for GameEngine.
@@ -18,7 +18,7 @@ public interface GameEngineService {
      * @param to
      * @return
      */
-    int getThrowOfNumber(final int from, final int to);
+    int getThrowOfNumber(int from, int to);
 
     /**
      * The allows get the generated number this moment.
@@ -33,11 +33,13 @@ public interface GameEngineService {
      */
     String checkWinning(Integer number);
 
-    List<Player> findAll();
+    Flux<Player> findAll();
 
-    List<Player> findByStates(PlayerState... states);
+    Flux<Player> findByStates(PlayerState... states);
 
-    Player save(Player player);
+    Mono<Player> findById(String playerId);
+
+    Mono<Player> save(Player player);
 
     /**
      * The allows you to connect new player to the round of the game and open broadcasting from results of the game.

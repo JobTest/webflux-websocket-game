@@ -1,12 +1,14 @@
 package com.webfluxwebsocket.game.service.impl;
 
-import com.webfluxwebsocket.game.dao.PlayerRepository;
-import com.webfluxwebsocket.game.model.Player;
-import com.webfluxwebsocket.game.model.enumeration.PlayerState;
+import com.webfluxwebsocket.game.repository.PlayerReactiveRepository;
+import com.webfluxwebsocket.game.domain.Player;
+import com.webfluxwebsocket.game.domain.enumeration.PlayerState;
 import com.webfluxwebsocket.game.service.GameEngineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Example;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.socket.WebSocketMessage;
@@ -36,11 +38,8 @@ public class GameEngineServiceImpl implements GameEngineService {
     @Value("ws://${server.address}:${server.port}/${game.ws-host}")
     private String webSocketHostName;
 
-    private final PlayerRepository playerRepository;
-
-    public GameEngineServiceImpl() {
-        this.playerRepository = new PlayerRepository();
-    }
+    @Autowired
+    private PlayerReactiveRepository playerReactiveRepository;
 
     @Override
     public Integer getGeneratedNumber() {
@@ -60,26 +59,32 @@ public class GameEngineServiceImpl implements GameEngineService {
     }
 
     @Override
-    public List<Player> findAll() {
-        return playerRepository.findAll();
+    public Flux<Player> findAll() {
+        return playerReactiveRepository.findAll();
     }
 
     @Override
-    public List<Player> findByStates(PlayerState... states) {
-        return playerRepository.findByStates(states);
+    public Flux<Player> findByStates(PlayerState... states) {
+        return playerReactiveRepository.findAll()
+                .filter(gamePlayer -> Arrays.asList(states).contains(gamePlayer.getState()));
     }
 
     @Override
-    public Player save(Player player) {
-        playerRepository.save(player);
-        return playerRepository.findOne(player.getId());
+    public Mono<Player> findById(String playerId) {
+        return playerReactiveRepository.findById(playerId);
+    }
+
+    @Override
+    public Mono<Player> save(Player player) {
+        return playerReactiveRepository.save(player);
     }
 
     @Override
     public Flux<String> getConnectToGameRound(String playerId, Player player) throws URISyntaxException, IllegalAccessException {
-        boolean isPlayerStatus = isPlayerStatus(playerRepository.findOne(playerId));
+        Player monoPlayer = playerReactiveRepository.findById(playerId).block();
+        boolean isPlayerStatus = isPlayerStatus(monoPlayer);
         if (isPlayerStatus) {
-            save(player);
+            save(player).block();
         } else {
             throw new IllegalAccessException("This time a server is busy to process Your request");
         }
@@ -97,37 +102,41 @@ public class GameEngineServiceImpl implements GameEngineService {
     }
 
     @Scheduled(cron = "${game.cron.stop-round}")
-    private void stopRound() {
+    public void stopRound() {
         generatedNumber = getThrowOfNumber(from, to);
 
         logger.debug("Stop the Round with the Random of Number = {}", generatedNumber);
 
-        for (Player player : findByStates(PlayerState.PLAY)) {
-            player.setWin( checkWinning(player.getNumber()) );
-            player.setState(PlayerState.STOP_ROUND);
-        }
+        playerReactiveRepository.findAll( Example.of(new Player(null, null, null, PlayerState.PLAY)) )
+                .flatMap(player -> {
+                    player.setWin(checkWinning(player.getNumber()));
+                    player.setState(PlayerState.STOP_ROUND);
+                    return playerReactiveRepository.save(player); })
+                .subscribe();
     }
 
     @Scheduled(cron = "${game.cron.start-round}")
-    private void startRound() {
+    public void startRound() {
         logger.debug("Get Start new Round");
 
-        for (Player player : findByStates(PlayerState.STOP_ROUND)) {
-            player.setWin(null);
-            player.setNumber(null);
-            player.setState(PlayerState.START_ROUND);
-        }
+        playerReactiveRepository.findAll( Example.of(new Player(null, null, null, PlayerState.STOP_ROUND)) )
+                .flatMap(player -> {
+                    player.setWin(null);
+                    player.setNumber(null);
+                    player.setState(PlayerState.START_ROUND);
+                    return playerReactiveRepository.save(player); })
+                .subscribe();
     }
 
     private boolean isPlayerStatus(Player player) {
         return player==null
                 || player.getState()==null
-                || ( !player.getState().equals(PlayerState.PLAY) && !player.getState().equals(PlayerState.STOP_ROUND) );
+                || ( player.getState()!=PlayerState.PLAY && player.getState()!=PlayerState.STOP_ROUND );
     }
 
     private boolean isPlayerWin(Integer number) {
-        return number!=null
-                && generatedNumber!=null
-                && generatedNumber==number;
+        return number.equals(null)
+                && generatedNumber.equals(null)
+                && generatedNumber.equals(number);
     }
 }

@@ -3,8 +3,8 @@ package com.webfluxwebsocket.game.web.rest;
 import java.net.URISyntaxException;
 
 import com.google.gson.JsonSyntaxException;
-import com.webfluxwebsocket.game.model.Player;
-import com.webfluxwebsocket.game.model.enumeration.PlayerState;
+import com.webfluxwebsocket.game.domain.Player;
+import com.webfluxwebsocket.game.domain.enumeration.PlayerState;
 import com.webfluxwebsocket.game.service.GameEngineService;
 import com.webfluxwebsocket.game.service.mapper.PlayerMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,12 +33,14 @@ public class GameEngineResource {
 
 	@PostMapping("/players")
 	public Mono<ResponseEntity<Player>> registrationPlayer(@RequestBody Player player) {
-		return Mono.just(new ResponseEntity<>(gameEngineService.save(player), HttpStatus.CREATED));
+		return gameEngineService.save(player)
+				.map(registrationPlayer -> new ResponseEntity<>(registrationPlayer, HttpStatus.CREATED))
+				.defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
 
 	@GetMapping("/players")
 	public Flux<Player> getPlayerAll() {
-		return Flux.fromIterable(gameEngineService.findAll());
+		return gameEngineService.findAll();
 	}
 
 	@GetMapping(path = "/game-round/{playerId}")
@@ -57,6 +59,6 @@ public class GameEngineResource {
 
 	@GetMapping("/game-round")
 	public Flux<Player> getActualGameRound() {
-		return Flux.fromIterable(gameEngineService.findByStates(PlayerState.PLAY));
+		return gameEngineService.findByStates(PlayerState.PLAY);
 	}
 }

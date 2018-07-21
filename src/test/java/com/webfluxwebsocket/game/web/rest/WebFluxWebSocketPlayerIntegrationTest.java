@@ -1,7 +1,7 @@
 package com.webfluxwebsocket.game.web.rest;
 
-import com.webfluxwebsocket.game.model.Player;
-import com.webfluxwebsocket.game.model.enumeration.PlayerState;
+import com.webfluxwebsocket.game.domain.Player;
+import com.webfluxwebsocket.game.domain.enumeration.PlayerState;
 import com.webfluxwebsocket.game.service.GameEngineService;
 import org.junit.FixMethodOrder;
 import org.junit.jupiter.api.Test;

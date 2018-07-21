@@ -1,4 +1,4 @@
-package com.webfluxwebsocket.game.model.enumeration;
+package com.webfluxwebsocket.game.domain.enumeration;
 
 /**
  * The PlayerState enumeration.

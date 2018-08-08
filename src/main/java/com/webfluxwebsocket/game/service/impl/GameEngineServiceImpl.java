@@ -89,16 +89,22 @@ public class GameEngineServiceImpl implements GameEngineService {
             throw new IllegalAccessException("This time a server is busy to process Your request");
         }
 
+        //TODO:  это клиентская часть - подключаемся к (url) каналу веб-сокета и получаем сессию внутри этого канала чтобы вытянуть данные отправленные для клиента...
         EmitterProcessor<String> emitter = EmitterProcessor.create();
         WebSocketClient socketClient = new ReactorNettyWebSocketClient();
         String urlSocketChanel = webSocketHostName + "/" + playerId;
 
-        Mono<Void> mono = socketClient.execute(new URI(urlSocketChanel),
-                socketSession -> socketSession.receive()
-                        .map(WebSocketMessage::getPayloadAsText)
+        //TODO:  'Mono' - нужен для работы с единственным объектом
+        Mono<Void> mono = socketClient.execute(new URI(urlSocketChanel),   //TODO   Socket-URL
+                socketSession -> socketSession.receive()                   //TODO   Socket-Session
+                        .map(WebSocketMessage::getPayloadAsText)           //TODO   from receive message
                         .subscribeWith(emitter)
                         .then());
-        return emitter.doOnSubscribe(subscription -> mono.subscribe());
+
+        //TODO клиент может подключаться к серверу с помощью 'WebSocket' ws://localhost/echo из веб-браузера JavaScript-ом ( https://www.websocket.org/echo.html >> http://demos.kaazing.com/echo/index.html )
+        //TODO клиент может подключаться к серверу с помощью 'ReactorNettyWebSocketClient' ws://localhost/echo из сервера Spring Reactive WebSocket Clients ( https://stackify.com/reactive-spring-5 )
+        //TODO https://stackify.com/reactive-spring-5  ???  WebSocket Echo Service
+        return emitter.doOnSubscribe(subscription -> mono.subscribe()); //TODO   в сессии данные ожидают когда их заберут И этих данных накапливается очень много - поэтому вытягиваем все данные которые ожидают доставку И КОНВЕРТИРУЕМ ИХ В ПОТОК ДЛЯ специального БРАУЗЕРНОГО КЛИЕНТА (клиент который подписался на них принимает их в форме потока...)
     }
 
     @Scheduled(cron = "${game.cron.stop-round}")

@@ -2,7 +2,9 @@
 Игра - угадай цифру
 -------------------
 
-* [youtube.com/watch?v=VBrZ_nyjBaQ](https://www.youtube.com/watch?v=VBrZ_nyjBaQ&feature=youtu.be&t=29605)
+* [JBreak 2018: прямая трансляция из главного зала](https://www.youtube.com/watch?v=VBrZ_nyjBaQ&feature=youtu.be&t=29605)
+* [Spring 5 WebClient and WebTestClient Tutorial with Examples](https://www.callicoder.com/spring-5-reactive-webclient-webtestclient-examples)
+
 
 Сервер генерирует число от 1 до 10, и ждет варианты в течении 10 секунд.
 Тому кто угадал сервер шлет ответ “You win”, тому кто проиграл “You lose”
